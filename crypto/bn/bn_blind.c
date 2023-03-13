@@ -275,7 +275,11 @@ BN_BLINDING *BN_BLINDING_create_param(BN_BLINDING *b,
         if (!ret->bn_mod_exp(ret->A, ret->A, ret->e, ret->mod, ctx, ret->m_ctx))
             goto err;
     } else {
+#ifdef S390X_MOD_EXP
+        if (!s390x_mod_exp(ret->A, ret->A, ret->e, ret->mod, ctx, NULL))
+#else
         if (!BN_mod_exp(ret->A, ret->A, ret->e, ret->mod, ctx))
+#endif
             goto err;
     }
 
