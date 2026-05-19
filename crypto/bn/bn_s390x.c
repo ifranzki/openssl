@@ -30,6 +30,8 @@ static int s390x_mod_exp_hw(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
 
     if (OPENSSL_s390xcex == -1 || OPENSSL_s390xcex_nodev)
         return 0;
+    if (BN_num_bits(p) < OPENSSL_s390xcex_min_bits)
+        return 0;
     size = BN_num_bytes(m);
     buffer = OPENSSL_calloc(size, 4);
     if (buffer == NULL)
@@ -77,7 +79,7 @@ int s390x_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
 }
 
 int s390x_crt(BIGNUM *r, const BIGNUM *i, const BIGNUM *p, const BIGNUM *q,
-    const BIGNUM *dmp, const BIGNUM *dmq, const BIGNUM *iqmp)
+    const BIGNUM *dmp, const BIGNUM *dmq, const BIGNUM *iqmp, const BIGNUM *n)
 {
     struct ica_rsa_modexpo_crt crt;
     unsigned char *buffer, *part;
@@ -85,6 +87,8 @@ int s390x_crt(BIGNUM *r, const BIGNUM *i, const BIGNUM *p, const BIGNUM *q,
     int res = 0;
 
     if (OPENSSL_s390xcex == -1 || OPENSSL_s390xcex_nodev)
+        return 0;
+    if (BN_num_bits(n) < OPENSSL_s390xcex_min_bits)
         return 0;
     /*-
      * Hardware-accelerated CRT can only deal with p>q.  Fall back to
@@ -153,7 +157,7 @@ int s390x_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
 }
 
 int s390x_crt(BIGNUM *r, const BIGNUM *i, const BIGNUM *p, const BIGNUM *q,
-    const BIGNUM *dmp, const BIGNUM *dmq, const BIGNUM *iqmp)
+    const BIGNUM *dmp, const BIGNUM *dmq, const BIGNUM *iqmp, const BIGNUM *n)
 {
     return 0;
 }
